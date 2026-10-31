@@ -1,0 +1,44 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build & Archive iOS App
+        run: |
+          xcodebuild -project Yana18.xcodeproj \
+            -scheme Yana18 \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive -archivePath build/Yana18.xcarchive
+
+      - name: Package IPA
+        run: |
+          mkdir -p build/Payload
+          cp -r build/Yana18.xcarchive/Products/Applications/Yana18.app build/Payload/
+          cd build
+          zip -r -y Yana18.ipa Payload
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yana18-iOS-IPA
+          path: build/Yana18.ipa
+          retention-days: 30
