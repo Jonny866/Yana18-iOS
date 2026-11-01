@@ -2,6 +2,7 @@ name: Yana18
 options:
   bundleIdPrefix: com.yana18
   createIntermediateGroups: true
+  xcodeVersion: "15.4"
 targets:
   Yana18:
     type: application
