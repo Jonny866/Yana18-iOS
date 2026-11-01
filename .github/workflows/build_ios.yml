@@ -8,7 +8,7 @@ on:
 jobs:
   build-ios:
     name: Build & Sign IPA for iPhone (ESign, Scarlet, GBox, TrollStore)
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout repository
