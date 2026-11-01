@@ -1,10 +1,10 @@
-name: Yana18
+name: App
 options:
-  bundleIdPrefix: com.yana18
+  bundleIdPrefix: com.shoppinglist
   createIntermediateGroups: true
   xcodeVersion: "15.4"
 targets:
-  Yana18:
+  App:
     type: application
     platform: iOS
     deploymentTarget: "15.0"
@@ -12,8 +12,8 @@ targets:
       - path: Sources
       - path: Resources
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: com.yana18.gift
-      PRODUCT_NAME: Yana18
+      PRODUCT_BUNDLE_IDENTIFIER: com.shoppinglist.ios
+      PRODUCT_NAME: App
       INFOPLIST_FILE: Resources/Info.plist
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       MARKETING_VERSION: "1.0"

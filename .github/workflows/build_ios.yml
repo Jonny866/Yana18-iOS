@@ -14,22 +14,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Optimize Audio Asset with afconvert
+        run: |
+          set -e
+          if [ -f Resources/music/barbariki_birthday.mp4 ]; then
+            echo "Converting 20MB video to lightweight AAC audio m4a with native afconvert..."
+            afconvert -f m4af -d aac Resources/music/barbariki_birthday.mp4 Resources/music/barbariki_birthday.m4a
+            rm -f Resources/music/barbariki_birthday.mp4
+            ls -lh Resources/music/
+          fi
+
       - name: Install xcodegen
         run: brew install xcodegen
 
       - name: Generate Xcode Project
         run: |
           xcodegen generate
-          sed -i '' 's/objectVersion = [0-9]*/objectVersion = 60/g' Yana18.xcodeproj/project.pbxproj
+          sed -i '' 's/objectVersion = [0-9]*/objectVersion = 60/g' App.xcodeproj/project.pbxproj
           echo "Verified objectVersion in project.pbxproj:"
-          grep "objectVersion" Yana18.xcodeproj/project.pbxproj
+          grep "objectVersion" App.xcodeproj/project.pbxproj
 
       - name: Build Xcode App Binary
         run: |
           set -e
           set -o pipefail
-          xcodebuild -project Yana18.xcodeproj \
-            -scheme Yana18 \
+          xcodebuild -project App.xcodeproj \
+            -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -derivedDataPath build \
@@ -49,10 +59,10 @@ jobs:
       - name: Package Clean IPA for iPhone (ESign, Scarlet, GBox, TrollStore)
         run: |
           set -e
-          echo "Looking for Yana18.app bundle in build directory..."
-          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "Yana18.app" -type d | head -n 1)
+          echo "Looking for App.app bundle in build directory..."
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -name "App.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
-            APP_PATH=$(find build/Build/Products -name "Yana18.app" -type d | head -n 1)
+            APP_PATH=$(find build/Build/Products -name "App.app" -type d | head -n 1)
           fi
           if [ -z "$APP_PATH" ]; then
             echo "Error: App bundle was not found!"
@@ -61,14 +71,14 @@ jobs:
           fi
           echo "Found compiled app bundle at: $APP_PATH"
 
-          if [ ! -f "$APP_PATH/Yana18" ]; then
-            echo "Error: Executable binary Yana18 is missing from $APP_PATH!"
+          if [ ! -f "$APP_PATH/App" ]; then
+            echo "Error: Executable binary App is missing from $APP_PATH!"
             ls -la "$APP_PATH"
             exit 1
           fi
           echo "Executable binary found! Details:"
-          file "$APP_PATH/Yana18"
-          ls -lh "$APP_PATH/Yana18"
+          file "$APP_PATH/App"
+          ls -lh "$APP_PATH/App"
 
           mkdir -p output/Payload
           cp -R "$APP_PATH" output/Payload/
