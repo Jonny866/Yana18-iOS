@@ -11,7 +11,9 @@ final class BackgroundAudioPlayer: ObservableObject {
     }
     
     func setupAudio() {
-        guard let url = Bundle.main.url(forResource: "barbariki_birthday", withExtension: "mp4", subdirectory: "music")
+        guard let url = Bundle.main.url(forResource: "barbariki_birthday", withExtension: "m4a", subdirectory: "music")
+                ?? Bundle.main.url(forResource: "barbariki_birthday", withExtension: "m4a")
+                ?? Bundle.main.url(forResource: "barbariki_birthday", withExtension: "mp4", subdirectory: "music")
                 ?? Bundle.main.url(forResource: "barbariki_birthday", withExtension: "mp4") else {
             return
         }

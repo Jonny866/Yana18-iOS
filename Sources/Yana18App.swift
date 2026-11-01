@@ -10,19 +10,6 @@ enum AppPhase: Int, CaseIterable {
     case final = 6
 }
 
-@main
-struct Yana18App: App {
-    @StateObject private var audio = BackgroundAudioPlayer.shared
-    
-    var body: some Scene {
-        WindowGroup {
-            MainContainerView()
-                .environmentObject(audio)
-                .preferredColorScheme(.dark)
-        }
-    }
-}
-
 struct MainContainerView: View {
     @EnvironmentObject var audio: BackgroundAudioPlayer
     @State private var phase: AppPhase = .gate
