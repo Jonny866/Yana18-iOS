@@ -14,14 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install xcodegen
-        run: brew install xcodegen
+      - name: Install ffmpeg and xcodegen
+        run: brew install ffmpeg xcodegen
+
+      - name: Convert video to audio-only m4a
+        run: |
+          set -e
+          echo "Converting barbariki_birthday.mp4 (20MB video) to audio-only m4a..."
+          ffmpeg -i Resources/music/barbariki_birthday.mp4 \
+            -vn -acodec aac -b:a 128k \
+            Resources/music/barbariki_birthday.m4a
+          rm -f Resources/music/barbariki_birthday.mp4
+          echo "Audio conversion complete:"
+          ls -lh Resources/music/
 
       - name: Generate Xcode Project
         run: |
           xcodegen generate
           sed -i '' 's/objectVersion = [0-9]*/objectVersion = 60/g' App.xcodeproj/project.pbxproj
-          echo "Verified objectVersion in project.pbxproj:"
+          echo "Verified objectVersion:"
           grep "objectVersion" App.xcodeproj/project.pbxproj
 
       - name: Build Xcode App Binary
@@ -41,40 +52,31 @@ jobs:
             DEVELOPMENT_TEAM="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
             build 2>&1 | tee xcodebuild.log || {
-              echo "=== XCODEBUILD FAILED. LAST 50 LINES OF LOG: ==="
+              echo "=== XCODEBUILD FAILED. LAST 50 LINES: ==="
               tail -n 50 xcodebuild.log
               exit 1
             }
 
-      - name: Package Clean IPA for iPhone (ESign, Scarlet, GBox, TrollStore)
+      - name: Package IPA
         run: |
           set -e
-          echo "Looking for App.app bundle in build directory..."
           APP_PATH=$(find build/Build/Products/Release-iphoneos -name "App.app" -type d | head -n 1)
           if [ -z "$APP_PATH" ]; then
             APP_PATH=$(find build/Build/Products -name "App.app" -type d | head -n 1)
           fi
           if [ -z "$APP_PATH" ]; then
-            echo "Error: App bundle was not found!"
+            echo "Error: App.app not found!"
             find build/Build/Products -maxdepth 3 -ls || true
             exit 1
           fi
-          echo "Found compiled app bundle at: $APP_PATH"
-
-          if [ ! -f "$APP_PATH/App" ]; then
-            echo "Error: Executable binary App is missing from $APP_PATH!"
-            ls -la "$APP_PATH"
-            exit 1
-          fi
-          echo "Executable binary found! Details:"
-          file "$APP_PATH/App"
-          ls -lh "$APP_PATH/App"
+          echo "App bundle: $APP_PATH"
+          ls -lh "$APP_PATH"
 
           mkdir -p output/Payload
           cp -R "$APP_PATH" output/Payload/
           cd output
           zip -r -y Yana18.ipa Payload
-          echo "Successfully created Yana18.ipa"
+          echo "IPA size:"
           ls -lh Yana18.ipa
 
       - name: Upload IPA Artifact
