@@ -17,15 +17,6 @@ jobs:
       - name: Install xcodegen
         run: brew install xcodegen
 
-      - name: Optimize Audio Asset (Extract AAC to reduce IPA size)
-        run: |
-          if [ -f Resources/music/barbariki_birthday.mp4 ]; then
-            echo "Converting barbariki_birthday.mp4 to lightweight AAC m4a..."
-            ffmpeg -i Resources/music/barbariki_birthday.mp4 -vn -c:a aac -b:a 192k Resources/music/barbariki_birthday.m4a
-            rm Resources/music/barbariki_birthday.mp4
-            ls -lh Resources/music/
-          fi
-
       - name: Generate Xcode Project
         run: |
           xcodegen generate
