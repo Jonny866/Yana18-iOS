@@ -14,16 +14,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Optimize Audio Asset with afconvert
-        run: |
-          set -e
-          if [ -f Resources/music/barbariki_birthday.mp4 ]; then
-            echo "Converting 20MB video to lightweight AAC audio m4a with native afconvert..."
-            afconvert -f m4af -d aac Resources/music/barbariki_birthday.mp4 Resources/music/barbariki_birthday.m4a
-            rm -f Resources/music/barbariki_birthday.mp4
-            ls -lh Resources/music/
-          fi
-
       - name: Install xcodegen
         run: brew install xcodegen
 
